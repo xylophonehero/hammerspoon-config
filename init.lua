@@ -1,30 +1,24 @@
 local hyper = { "cmd", "alt", "ctrl", "shift" }
 
+local inspect = function(v)
+	hs.alert.show(hs.inspect.inspect(v))
+end
+
+-- Apllication switcher
 local applicationHotkeys = {
-	u = "Kit",
 	f = "Firefox",
-	t = "Visual Studio Code",
-	e = "Google Chrome",
-	n = "iTerm",
-	r = "OBS",
+	e = "Arc",
+	n = "Ghostty",
+	b = "OBS",
 	d = "Discord",
 	s = "Slack",
 	y = "System Preferences",
 	i = "Safari",
-}
-
-local chromeApps = {
-	m = "Gmail",
-	o = "Spotify",
 	w = "WhatsApp",
+	a = "Finder",
+	g = "Google Chrome",
+	o = "Spotify",
 }
-
-function openChromeApp(name)
-	return function()
-		-- Be sure to get the real name of the app (Use ls -a to check).
-		hs.application.launchOrFocus(os.getenv("HOME") .. "/Applications/Chrome Apps.localized/" .. name .. ".app")
-	end
-end
 
 for key, app in pairs(applicationHotkeys) do
 	hs.hotkey.bind(hyper, key, function()
@@ -32,6 +26,67 @@ for key, app in pairs(applicationHotkeys) do
 	end)
 end
 
-for key, app in pairs(chromeApps) do
-	hs.hotkey.bind(hyper, key, openChromeApp(app))
-end
+-- Hotkey to toggle light/dark mode
+hs.hotkey.bind(hyper, "T", function()
+	local _, isDarkMode = hs.osascript.applescript([[
+        tell application "System Events"
+            tell appearance preferences
+                return dark mode
+            end tell
+        end tell
+    ]])
+
+	-- Toggle the macOS appearance mode
+	hs.osascript.applescript([[
+        tell application "System Events"
+            tell appearance preferences
+                set dark mode to not dark mode
+            end tell
+        end tell
+    ]])
+
+	-- Notify the user
+	if isDarkMode then
+		hs.alert.show("Switched to Light Mode")
+	else
+		hs.alert.show("Switched to Dark Mode")
+	end
+end)
+
+-- Show the time
+hs.loadSpoon("AClock")
+hs.hotkey.bind(hyper, "c", function()
+	spoon.AClock:toggleShow()
+end)
+
+-- Emoji picker
+hs.loadSpoon("Emojis")
+spoon.Emojis:bindHotkeys({ toggle = { hyper, "j" } })
+
+-- Currently playing song
+hs.hotkey.bind(hyper, "p", function()
+	local track = hs.spotify.getCurrentTrack()
+	local artist = hs.spotify.getCurrentArtist()
+	local album = hs.spotify.getCurrentAlbum()
+	local albumArt = hs.spotify.getCurrentTrackArtworkURL()
+
+	hs.image.imageFromURL(albumArt, function(image)
+		image:size({ h = 200, w = 200 })
+		hs.alert.showWithImage(
+			string.format(
+				"Track: %s\nArtist: %s\nAlbum: %s",
+				track,
+				artist,
+				album
+			),
+			image,
+			4
+		)
+	end)
+end)
+
+-- Reload config
+hs.hotkey.bind(hyper, "r", function()
+	hs.reload()
+end)
+hs.alert.show("Config reloaded")
