@@ -88,7 +88,7 @@ hs.hotkey.bind(hyper, "p", function()
 	end)
 end)
 
-local slackHotkeyMap = {
+local vimHotkeyMap = {
 	["j"] = "down",
 	["k"] = "up",
 	["l"] = "right",
@@ -97,29 +97,47 @@ local slackHotkeyMap = {
 	["p"] = "up",
 	["c"] = "Escape",
 }
--- Enable ctrl + hjkl/np for triggering arrow keys in slack
-SlackHotkeys = {}
-for key, value in pairs(slackHotkeyMap) do
-	SlackHotkeys[key] = hs.hotkey.new({ "ctrl" }, key, function()
+-- Enable vim style keybindings for applications that use arrow keys
+VimHotkeys = {}
+for key, value in pairs(vimHotkeyMap) do
+	VimHotkeys[key] = hs.hotkey.new({ "ctrl" }, key, function()
 		hs.eventtap.keyStroke({}, value, 0)
 	end)
 end
 
-SlackWatcher = hs.application.watcher.new(function(appName, eventType)
-	if appName == "Slack" and eventType == hs.application.watcher.activated then
-		for key in pairs(SlackHotkeys) do
-			SlackHotkeys[key]:enable()
+AppWatcher = hs.application.watcher.new(function(appName, eventType)
+	local function tableHasValue(tab, val)
+		for _, value in pairs(tab) do
+			if value == val then
+				return true
+			end
+		end
+		return false
+	end
+	local appNames = { "Slack", "Spotify" }
+
+	if
+		tableHasValue(appNames, appName)
+		and eventType == hs.application.watcher.activated
+	then
+		for key in pairs(VimHotkeys) do
+			VimHotkeys[key]:enable()
 		end
 	end
+
 	if
-		appName == "Slack"
+		tableHasValue(appNames, appName)
 		and eventType == hs.application.watcher.deactivated
+		and not tableHasValue(
+			appNames,
+			hs.application.frontmostApplication():name()
+		)
 	then
-		for key in pairs(SlackHotkeys) do
-			SlackHotkeys[key]:disable()
+		for key in pairs(VimHotkeys) do
+			VimHotkeys[key]:disable()
 		end
 	end
 end)
-SlackWatcher:start()
+AppWatcher:start()
 
 hs.alert.show("Config reloaded")
