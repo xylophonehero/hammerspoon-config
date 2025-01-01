@@ -1,8 +1,11 @@
 local hyper = { "cmd", "alt", "ctrl", "shift" }
 
-local inspect = function(v)
-	hs.alert.show(hs.inspect.inspect(v))
-end
+-- Reload config
+hs.hotkey.bind(hyper, "r", function()
+	hs.reload()
+end)
+
+local inspect = hs.inspect.inspect
 
 -- Apllication switcher
 local applicationHotkeys = {
@@ -85,8 +88,38 @@ hs.hotkey.bind(hyper, "p", function()
 	end)
 end)
 
--- Reload config
-hs.hotkey.bind(hyper, "r", function()
-	hs.reload()
+local slackHotkeyMap = {
+	["j"] = "down",
+	["k"] = "up",
+	["l"] = "right",
+	["h"] = "left",
+	["n"] = "down",
+	["p"] = "up",
+	["c"] = "Escape",
+}
+-- Enable ctrl + hjkl/np for triggering arrow keys in slack
+SlackHotkeys = {}
+for key, value in pairs(slackHotkeyMap) do
+	SlackHotkeys[key] = hs.hotkey.new({ "ctrl" }, key, function()
+		hs.eventtap.keyStroke({}, value, 0)
+	end)
+end
+
+SlackWatcher = hs.application.watcher.new(function(appName, eventType)
+	if appName == "Slack" and eventType == hs.application.watcher.activated then
+		for key in pairs(SlackHotkeys) do
+			SlackHotkeys[key]:enable()
+		end
+	end
+	if
+		appName == "Slack"
+		and eventType == hs.application.watcher.deactivated
+	then
+		for key in pairs(SlackHotkeys) do
+			SlackHotkeys[key]:delete()
+		end
+	end
 end)
+SlackWatcher:start()
+
 hs.alert.show("Config reloaded")
