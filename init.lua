@@ -116,7 +116,7 @@ SlackWatcher = hs.application.watcher.new(function(appName, eventType)
 		and eventType == hs.application.watcher.deactivated
 	then
 		for key in pairs(SlackHotkeys) do
-			SlackHotkeys[key]:delete()
+			SlackHotkeys[key]:disable()
 		end
 	end
 end)
