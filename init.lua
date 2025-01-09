@@ -107,7 +107,17 @@ for key, value in pairs(vimHotkeyMap) do
 	VimHotkeys["alt_" .. key] = hs.hotkey.new({ "ctrl", "alt" }, key, function()
 		hs.eventtap.keyStroke({ "alt" }, value, 0)
 	end)
+	VimHotkeys["alt_shift_" .. key] = hs.hotkey.new(
+		{ "ctrl", "alt", "shift" },
+		key,
+		function()
+			hs.eventtap.keyStroke({ "alt", "shift" }, value, 0)
+		end
+	)
 end
+VimHotkeys["ctrl_s"] = hs.hotkey.new({ "ctrl" }, "s", function()
+	hs.eventtap.keyStroke({ "cmd" }, "Return", 0)
+end)
 
 AppWatcher = hs.application.watcher.new(function(appName, eventType)
 	local function tableHasValue(tab, val)
