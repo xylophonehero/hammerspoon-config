@@ -96,12 +96,16 @@ local vimHotkeyMap = {
 	["n"] = "down",
 	["p"] = "up",
 	["c"] = "Escape",
+	["w"] = "Delete",
 }
 -- Enable vim style keybindings for applications that use arrow keys
 VimHotkeys = {}
 for key, value in pairs(vimHotkeyMap) do
 	VimHotkeys[key] = hs.hotkey.new({ "ctrl" }, key, function()
 		hs.eventtap.keyStroke({}, value, 0)
+	end)
+	VimHotkeys["alt_" .. key] = hs.hotkey.new({ "ctrl", "alt" }, key, function()
+		hs.eventtap.keyStroke({ "alt" }, value, 0)
 	end)
 end
 
@@ -114,7 +118,7 @@ AppWatcher = hs.application.watcher.new(function(appName, eventType)
 		end
 		return false
 	end
-	local appNames = { "Slack", "Spotify" }
+	local appNames = { "Slack", "Spotify", "Arc", "Discord" }
 
 	if
 		tableHasValue(appNames, appName)
