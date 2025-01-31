@@ -1,3 +1,5 @@
+local wg = require("wg")
+
 local hyper = { "cmd", "alt", "ctrl", "shift" }
 
 -- Reload config
@@ -93,10 +95,10 @@ local vimHotkeyMap = {
 	["k"] = "up",
 	["l"] = "right",
 	["h"] = "left",
-	["n"] = "down",
-	["p"] = "up",
+	-- ["n"] = "down",
+	-- ["p"] = "up",
 	["c"] = "Escape",
-	["w"] = "Delete",
+	-- ["w"] = "Delete",
 }
 -- Enable vim style keybindings for applications that use arrow keys
 VimHotkeys = {}
@@ -153,5 +155,7 @@ AppWatcher = hs.application.watcher.new(function(appName, eventType)
 	end
 end)
 AppWatcher:start()
+
+wg.init()
 
 hs.alert.show("Config reloaded")
