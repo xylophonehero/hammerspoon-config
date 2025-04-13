@@ -1,4 +1,6 @@
+local secrets = require("secrets")
 local wg = require("wg")
+-- local superwhisper = require("superwhisper")
 
 local hyper = { "cmd", "alt", "ctrl", "shift" }
 
@@ -23,6 +25,9 @@ local applicationHotkeys = {
 	a = "Finder",
 	g = "Google Chrome",
 	o = "Spotify",
+	c = "ChatGPT",
+	p = "Superwhisper",
+	v = "TV",
 }
 
 for key, app in pairs(applicationHotkeys) do
@@ -58,18 +63,78 @@ hs.hotkey.bind(hyper, "T", function()
 	end
 end)
 
+local function playOgg(filePath)
+	local task = hs.task.new("/opt/homebrew/bin/ffplay", nil, {
+		"-nodisp",
+		"-autoexit",
+		filePath,
+	})
+	task:start()
+end
+
 -- Show the time
 hs.loadSpoon("AClock")
-hs.hotkey.bind(hyper, "c", function()
+local function drawPokemon()
+	local number = math.random(1, 493)
+	local url = "https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/"
+		.. number
+		.. ".svg"
+
+	local canvas = hs.canvas.new({ x = 0, y = 0, w = 300, h = 300 }):show()
+	canvas[1] = {
+		type = "image",
+		image = hs.image.imageFromURL(url),
+		frame = { x = 0, y = 0, w = 300, h = 300 },
+	}
+
+	local cry = "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/"
+		.. number
+		.. ".ogg"
+
+	local tempPath = "/tmp/temp-sound.ogg" -- Temporary file path
+
+	-- hs.http.asyncGet(cry, nil, function(status, body)
+	-- 	if status == 200 then
+	-- 		local file = io.open(tempPath, "wb")
+	-- 		if file then
+	-- 			file:write(body)
+	-- 			file:close()
+	--        playOgg(tempPath)
+	-- 		end
+	-- 	else
+	-- 		hs.alert.show("Failed to download audio")
+	-- 	end
+	-- end)
+
+	hs.timer.doAfter(3, function()
+		canvas:delete()
+	end)
+end
+
+local function announceTime()
 	spoon.AClock:toggleShow()
+	-- drawPokemon()
+end
+
+-- hs.hotkey.bind(hyper, "v", function()
+-- 	announceTime()
+-- end)
+
+hs.hotkey.bind(hyper, "q", function()
+	hs.eventtap.keyStrokes(" " .. secrets.pin)
 end)
+
+Timers = {}
+for hour = 0, 23 do
+	Timers[hour] = hs.timer.doAt(hour .. ":00", "1d", announceTime)
+end
 
 -- Emoji picker
 hs.loadSpoon("Emojis")
 spoon.Emojis:bindHotkeys({ toggle = { hyper, "j" } })
 
 -- Currently playing song
-hs.hotkey.bind(hyper, "p", function()
+hs.hotkey.bind(hyper, "x", function()
 	local track = hs.spotify.getCurrentTrack()
 	local artist = hs.spotify.getCurrentArtist()
 	local album = hs.spotify.getCurrentAlbum()

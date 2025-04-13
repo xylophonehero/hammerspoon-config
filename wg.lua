@@ -53,10 +53,31 @@ local config = {
 			name = "automated",
 			links = {},
 		},
+		{
+			id = 14,
+			name = "sales-page",
+			links = {},
+		},
+		{
+			id = 29,
+			name = "with-all-reg",
+			links = {},
+		},
+		{
+			id = 54,
+			name = "paid-1",
+			links = {},
+		},
 	},
 }
 
-local modes = { "dashboard", "registration", "edit_registration", "streaming" }
+local modes = {
+	"dashboard",
+	"registration",
+	"page_editor",
+	"embed_builder",
+	"streaming",
+}
 
 -- Function to open a URL in the default browser
 local function openLink(url)
@@ -105,7 +126,7 @@ local function selectEpisode(callback)
 		end
 	end)
 	chooser:choices(choices)
-  chooser:placeholderText("Select episode")
+	chooser:placeholderText("Select episode")
 	chooser:queryChangedCallback(quickSelect(chooser, choices))
 	chooser:show()
 end
@@ -127,7 +148,7 @@ local function selectMode(callback)
 		end
 	end)
 	chooser:choices(choices)
-  chooser:placeholderText("Select mode")
+	chooser:placeholderText("Select mode")
 	chooser:queryChangedCallback(quickSelect(chooser, choices))
 	chooser:show()
 end
@@ -162,7 +183,7 @@ local function selectRole(episodeId, callback)
 		end
 	end)
 	chooser:choices(choices)
-  chooser:placeholderText("Select role")
+	chooser:placeholderText("Select role")
 	chooser:queryChangedCallback(quickSelect(chooser, choices))
 	chooser:show()
 end
@@ -180,7 +201,7 @@ local function confirmDryRun(callback)
 		end
 	end)
 	chooser:choices(choices)
-  chooser:placeholderText("Open as dry run")
+	chooser:placeholderText("Open as dry run")
 	chooser:queryChangedCallback(quickSelect(chooser, choices))
 	chooser:show()
 end
@@ -196,11 +217,17 @@ local function run(args)
 		openLink(
 			"http://localhost:3000/domain/admin-account.localhost/" .. name
 		)
-	elseif mode == "edit_registration" then
+	elseif mode == "page_editor" then
 		openLink(
 			"http://localhost:3000/admin/episodes/"
 				.. episodeId
 				.. "/registration_page/edit_template"
+		)
+	elseif mode == "embed_builder" then
+		openLink(
+			"http://localhost:3000/admin/episodes/"
+				.. episodeId
+				.. "/embed_registration_page"
 		)
 	elseif mode == "streaming" then
 		local episode = nil
